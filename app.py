@@ -17,24 +17,21 @@ def _is_user_allowed(stage, email):
     email_list = _retrieve_and_format_secrets(stage)
     email_family = email.split("@", 1)[1]
     if email in email_list or email_family in email_list:
-        return "Authorized"
+        return ["wrangler"]
     else:
-        return "Denied"
+        return []
 
 
 def handler(event, context):
     """Main function"""
     stage = event['requestContext']['stage']
-    print(stage)
     email = event['queryStringParameters']['email']
-    print(email)
-    access_status = _is_user_allowed(stage, email)
-    print(access_status)
+    roles = json.dumps(_is_user_allowed(stage, email))
     response = {
         "statusCode": 200,
         "headers": {
-            'Content-Type': 'text/html; charset=utf-8',
+            'Content-Type': 'application/json',
         },
-        "body": access_status
+        "body": roles
     }
     return response
